@@ -1,6 +1,10 @@
 import numpy as np
+import os
 
-f = open("ai_11.matrix","r")
+BASE = os.path.dirname(os.path.abspath(__file__))
+dir = os.path.join(BASE, 'data')
+input = "ai_20.matrix"
+f = open(os.path.join(dir, input),"r")
 l = []
 l = [line.split() for line in f]
 #print(l)
@@ -24,6 +28,8 @@ def finalDistance(node):
     
     return dist + arr[node[0],node[-1]]
 
+
+
 def BranchAndBound():
     
     ub = np.inf
@@ -36,7 +42,7 @@ def BranchAndBound():
     options.pop(0)
     # print(options)
     
-    while len(q) != 0:
+    while q:
         
         node = q.pop()
         # print("node: ",node)
