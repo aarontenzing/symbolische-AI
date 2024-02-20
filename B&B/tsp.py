@@ -3,13 +3,13 @@ import os
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 dir = os.path.join(BASE, 'data')
-input = "ai_20.matrix"
+input = "ai_13.matrix"
 f = open(os.path.join(dir, input),"r")
 l = []
 l = [line.split() for line in f]
-#print(l)
+# print(l)
 arr = np.array(l).astype(int)
-#print(arr)
+# print(arr)
 q = []
 
 def Distance(node):
@@ -20,6 +20,7 @@ def Distance(node):
     
     return dist
 
+
 def finalDistance(node):
     dist = 0
     for i in range(len(node)-1):
@@ -28,7 +29,16 @@ def finalDistance(node):
     
     return dist + arr[node[0],node[-1]]
 
-
+def best_cost_lowerbound(node, options):
+    lb = 0
+    lb += (2*finalDistance(node))
+    for loc in options:
+        distances = list(arr[loc])
+        distances.sort()
+        lb += distances[1]
+        lb += distances[2]
+    return lb/2
+            
 
 def BranchAndBound():
     
@@ -59,24 +69,26 @@ def BranchAndBound():
             
         else: 
             # opt = options
-            for i in range(len(opt)):
+            while opt:
                 # print("node: ",node)
                 cnode = node.copy()
-                cnode.append(opt[i])
+                cnode.append(opt.pop(0))
 
                 # print("opt:",opt[i])
                 # print("cnode: ",cnode)
                 
                 #Distance
-                if Distance(cnode) <= ub:
+                if best_cost_lowerbound(cnode, opt) <= ub:
                     q.append(cnode)
                
                 # print("stack:", q)
 
     return ub,sol
 
-sol = 0
-ub , sol = BranchAndBound()
 
-print("UB:",ub)
-print("Endsolution:",sol)
+if __name__ == "__main__":
+    sol = 0
+    ub , sol = BranchAndBound()
+
+    print("UB:",ub)
+    print("Endsolution:",sol)
