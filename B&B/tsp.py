@@ -29,6 +29,7 @@ def finalDistance(node):
     
     return dist + arr[node[0],node[-1]]
 
+
 def best_cost_lowerbound(node, options):
     lb = 0
     lb += (2*finalDistance(node))
@@ -62,9 +63,9 @@ def BranchAndBound():
         #Complete solution
         if (len(node) == arr.shape[0]):
             # print("solution:", node)
-
-            if(finalDistance(node) < ub):
-                ub = finalDistance(node)
+            distance = finalDistance(node)   
+            if(distance < ub):
+                ub = distance
                 sol = node
             
         else: 
