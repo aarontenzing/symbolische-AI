@@ -1,9 +1,10 @@
 import numpy as np
 import os
+import time as Time
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 dir = os.path.join(BASE, 'data')
-input = "ai_13.matrix"
+input = "ai_11.matrix"
 f = open(os.path.join(dir, input),"r")
 l = []
 l = [line.split() for line in f]
@@ -33,8 +34,10 @@ def finalDistance(node):
 def best_cost_lowerbound(node, options):
     lb = 0
     lb += (2*finalDistance(node))
-    for loc in options:
-        distances = list(arr[loc])
+    for x in options:
+        if (x == node[-1]):
+            continue
+        distances = list(arr[x])
         distances.sort()
         lb += distances[1]
         lb += distances[2]
@@ -70,13 +73,10 @@ def BranchAndBound():
             
         else: 
             # opt = options
-            while opt:
+            for i in range(len(opt)):
                 # print("node: ",node)
                 cnode = node.copy()
-                cnode.append(opt.pop(0))
-
-                # print("opt:",opt[i])
-                # print("cnode: ",cnode)
+                cnode.append(opt[i])
                 
                 #Distance
                 if best_cost_lowerbound(cnode, opt) <= ub:
@@ -89,7 +89,9 @@ def BranchAndBound():
 
 if __name__ == "__main__":
     sol = 0
+    start_time = Time.time()
     ub , sol = BranchAndBound()
-
+    end_time = Time.time()
+    print("Time:",end_time - start_time, "seconds")
     print("UB:",ub)
     print("Endsolution:",sol)
