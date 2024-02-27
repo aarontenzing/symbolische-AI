@@ -13,15 +13,7 @@ arr = np.array(l).astype(int)
 # print(arr)
 q = []
 
-def Distance(node):
-    dist = 0
-    for i in range(len(node)-1):
-        
-        dist += arr[node[i],node[i+1]]
-    
-    return dist
-
-
+# Calculate the distance of the final path
 def finalDistance(node):
     dist = 0
     for i in range(len(node)-1):
@@ -30,7 +22,29 @@ def finalDistance(node):
     
     return dist + arr[node[0],node[-1]]
 
+def bestCost(node):
 
+    node1 = node.copy()
+    # print("orig node:",node1)
+    check = node1.pop()
+
+    lb = 0
+    lb += (2*finalDistance(node1))
+    # print("node:",node1)
+    # print("option:",check)
+
+    distances = list(arr[check])
+    distances = [distances[x] for x in node1]
+
+    distances.sort()
+    # print("distances:",distances)
+    lb += distances[0]
+    if(len(distances) > 1):
+        lb += distances[1]
+
+    return lb/2
+
+# Calculate the lowerbound of the cost. If the lowerbound is greater than the upperbound, the node is pruned.
 def best_cost_lowerbound(node, options):
     lb = 0
     lb += (2*finalDistance(node))
@@ -39,8 +53,8 @@ def best_cost_lowerbound(node, options):
             continue
         distances = list(arr[x])
         distances.sort()
-        lb += distances[1]
-        lb += distances[2]
+        lb += distances[1] + distances[2]
+        
     return lb/2
             
 
@@ -79,7 +93,7 @@ def BranchAndBound():
                 cnode.append(opt[i])
                 
                 #Distance
-                if best_cost_lowerbound(cnode, opt) <= ub:
+                if bestCost(cnode) <= ub:
                     q.append(cnode)
                
                 # print("stack:", q)
@@ -92,6 +106,7 @@ if __name__ == "__main__":
     start_time = Time.time()
     ub , sol = BranchAndBound()
     end_time = Time.time()
+    print("matrix: ",input)
     print("Time:",end_time - start_time, "seconds")
     print("UB:",ub)
     print("Endsolution:",sol)
