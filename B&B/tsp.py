@@ -2,16 +2,13 @@ import numpy as np
 import os
 import time as Time
 
+# Read the matrix from the file
 BASE = os.path.dirname(os.path.abspath(__file__))
 dir = os.path.join(BASE, 'data')
-input = "ai_11.matrix"
+input = "ai_13.matrix"
 f = open(os.path.join(dir, input),"r")
-l = []
 l = [line.split() for line in f]
-# print(l)
 arr = np.array(l).astype(int)
-# print(arr)
-q = []
 
 # Calculate the distance of the final path
 def finalDistance(node):
@@ -44,31 +41,40 @@ def bestCost(node):
 
     return lb/2
 
-# Calculate the lowerbound of the cost. If the lowerbound is greater than the upperbound, the node is pruned.
-def best_cost_lowerbound(node, options):
+def getDistance(cnode):
     lb = 0
-    lb += (2*finalDistance(node))
+    n = len(cnode)
+    for x in range(n):
+        if (x == 0):
+            lb += arr[cnode[x],cnode[-1]] + arr[cnode[x],cnode[x+1]]
+        elif (x == n-1):
+            lb += arr[cnode[x],cnode[x-1]] + arr[cnode[x],cnode[0]]
+        else:
+            lb += arr[cnode[x],cnode[x-1]] + arr[cnode[x],cnode[x+1]]
+    return lb 
+
+
+# Calculate the lowerbound of the cost. If the lowerbound is greater than the upperbound, the node is pruned.
+def best_cost_lowerbound(cnode, options):
+    lb = getDistance(cnode)
     for x in options:
-        if (x == node[-1]):
+        if (x == cnode[-1]):
             continue
         distances = list(arr[x])
+        # distances = [distances[y] for y in cnode]
         distances.sort()
-        lb += distances[1] + distances[2]
+        lb += (distances[1] + distances[2])
         
     return lb/2
             
 
 def BranchAndBound():
-    
-    ub = np.inf
-    options = list(range(0,arr.shape[0]))
-    # print("test")
-    # print(options)
+    q = [] #Stack
+    ub = np.inf # Upperbound
+    options = list(range(0,arr.shape[0])) # Options
     node = []
-    #Insert N_0
-    q.append([options[0]])
+    q.append([options[0]]) #Insert N_0
     options.pop(0)
-    # print(options)
     
     while q:
         
@@ -93,7 +99,7 @@ def BranchAndBound():
                 cnode.append(opt[i])
                 
                 #Distance
-                if bestCost(cnode) <= ub:
+                if best_cost_lowerbound(cnode, opt) <= ub:
                     q.append(cnode)
                
                 # print("stack:", q)
@@ -108,5 +114,4 @@ if __name__ == "__main__":
     end_time = Time.time()
     print("matrix: ",input)
     print("Time:",end_time - start_time, "seconds")
-    print("UB:",ub)
-    print("Endsolution:",sol)
+    print("Endsolution:", ub, sol)
