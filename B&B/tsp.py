@@ -5,7 +5,7 @@ import time as Time
 # Read the matrix from the file
 BASE = os.path.dirname(os.path.abspath(__file__))
 dir = os.path.join(BASE, 'data')
-input = "ai_13.matrix"
+input = "ai_14.matrix"
 f = open(os.path.join(dir, input),"r")
 l = [line.split() for line in f]
 arr = np.array(l).astype(int)
@@ -41,29 +41,17 @@ def bestCost(node):
 
     return lb/2
 
-def getDistance(cnode):
-    lb = 0
-    n = len(cnode)
-    for x in range(n):
-        if (x == 0):
-            lb += arr[cnode[x],cnode[-1]] + arr[cnode[x],cnode[x+1]]
-        elif (x == n-1):
-            lb += arr[cnode[x],cnode[x-1]] + arr[cnode[x],cnode[0]]
-        else:
-            lb += arr[cnode[x],cnode[x-1]] + arr[cnode[x],cnode[x+1]]
-    return lb 
-
 
 # Calculate the lowerbound of the cost. If the lowerbound is greater than the upperbound, the node is pruned.
-def best_cost_lowerbound(cnode, options):
-    lb = getDistance(cnode)
+def bestCostLowerbound(cnode, options):
+    lb = finalDistance(cnode)*2
     for x in options:
         if (x == cnode[-1]):
             continue
         distances = list(arr[x])
         # distances = [distances[y] for y in cnode]
         distances.sort()
-        lb += (distances[1] + distances[2])
+        lb += (distances[0] + distances[1])
         
     return lb/2
             
@@ -99,7 +87,7 @@ def BranchAndBound():
                 cnode.append(opt[i])
                 
                 #Distance
-                if best_cost_lowerbound(cnode, opt) <= ub:
+                if bestCostLowerbound(cnode, opt) <= ub:
                     q.append(cnode)
                
                 # print("stack:", q)
