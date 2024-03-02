@@ -5,7 +5,7 @@
 #include "prog.h"
 
 // Global variables
-Zone zones[MAX];
+Zone zones[MAX];    
 char vehicles[MAX];
 Info data;
 
@@ -124,8 +124,8 @@ RequestNode* readInput() {
 
 int main() {
 
-    
     RequestNode *head = readInput(&data);
+    printf("Penalty 1: %d 2:%d\n", head->next->data.penalty1, head->next->data.penalty2);
     //printRequest(head);
     printf("Number of requests: %d\n", data.num_requests); 
     printf("Number of zones: %d\n", data.num_zones);
