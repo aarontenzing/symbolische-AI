@@ -5,7 +5,7 @@ import time as Time
 # Read the matrix from the file
 BASE = os.path.dirname(os.path.abspath(__file__))
 dir = os.path.join(BASE, 'data')
-input = "ai_14.matrix"
+input = "ai_11.matrix"
 f = open(os.path.join(dir, input),"r")
 l = [line.split() for line in f]
 arr = np.array(l).astype(int)
@@ -19,31 +19,27 @@ def finalDistance(node):
     
     return dist + arr[node[0],node[-1]]
 
-def bestCost(node, options):
+def Distance(node):
+    dist = 0
+    for i in range(len(node)-1):
+        
+        dist += arr[node[i],node[i+1]]
+    
+    return dist
+
+# Calculate the lowerbound of the cost. If the lowerbound is greater than the upperbound, the node is pruned.
+def bestCost(cnode, options):
     lb = 0
-    opt = list(np.setdiff1d(options,node))
-    lb += 2*finalDistance(node)
+    opt = list(np.setdiff1d(options,cnode))
+    lb += 2*finalDistance(cnode)
+    # lb += 2*Distance(cnode) # Alternatief
     for x in opt:
         distances = list(arr[x])
         distances.sort()
         lb += distances[0] + distances[1]
+        # lb += distances[1] + distances[2] # Alternatief
 
     return lb/2
-
-
-# Calculate the lowerbound of the cost. If the lowerbound is greater than the upperbound, the node is pruned.
-def bestCostLowerbound(cnode, options):
-    lb = finalDistance(cnode)*2
-    for x in options:
-        if (x == cnode[-1]):
-            continue
-        distances = list(arr[x])
-        # distances = [distances[y] for y in cnode]
-        distances.sort()
-        lb += (distances[0] + distances[1])
-        
-    return lb/2
-            
 
 def BranchAndBound():
     q = [] #Stack
@@ -76,7 +72,8 @@ def BranchAndBound():
                 cnode.append(opt[i])
                 
                 #Distance
-                if bestCostLowerbound(cnode, opt) <= ub:
+                if finalDistance(cnode) <= ub: # Eerste kostfunctie
+                # if bestCost(cnode, opt) <= ub: # Tweede kostfunctie
                     q.append(cnode)
                
                 # print("stack:", q)
