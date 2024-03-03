@@ -6,8 +6,8 @@
 
 Om de eerste kostfunctie te testen moet deze methode in de if-loop uit commentaar gezet worden en de lijn daaronder moet in commentaar staan. 
     
-Deze lijn uit commentaar: 'if finalDistance(cnode) <= ub: # Eerste kostfunctie'
-Deze lijn in commentaar: 'if bestCost(cnode, opt) <= ub: # Tweede kostfunctie'
+    Deze lijn uit commentaar: 'if finalDistance(cnode) <= ub: # Eerste kostfunctie'
+    Deze lijn in commentaar: 'if bestCost(cnode, opt) <= ub: # Tweede kostfunctie'
 
 ## Beste-kost ondergrens
 
@@ -27,8 +27,8 @@ Deze lijn uit commentaar: 'if bestCost(cnode, opt) <= ub: # Tweede kostfunctie'
 
 - Bij de methode bestCost(cnode,options)
 
-Deze lijn in commentaar: 'lb += 2*finalDistance(cnode)'
-Deze lijn uit commentaar: '# lb += 2*Distance(cnode) # Alternatief'
+    Deze lijn in commentaar: 'lb += 2*finalDistance(cnode)'
+    Deze lijn uit commentaar: '# lb += 2*Distance(cnode) # Alternatief'
 
-Deze lijn in commentaar: 'lb += distances[0] + distances[1]'
-Deze lijn uit commentaar: '# lb += distances[1] + distances[2] # Alternatief'
+    Deze lijn in commentaar: 'lb += distances[0] + distances[1]'
+    Deze lijn uit commentaar: '# lb += distances[1] + distances[2] # Alternatief'
