@@ -15,8 +15,8 @@ Om de eerste kostfunctie te testen moet deze methode in de if-loop uit commentaa
 
 - Om de tweede kostfunctie te testen moet deze methode in de if-loop uit commentaar gezet worden en de lijn daarboven moet in commentaar staan. 
 
-Deze lijn in commentaar: 'if finalDistance(cnode) <= ub: # Eerste kostfunctie'
-Deze lijn uit commentaar: 'if bestCost(cnode, opt) <= ub: # Tweede kostfunctie'
+    Deze lijn in commentaar: 'if finalDistance(cnode) <= ub: # Eerste kostfunctie'
+    Deze lijn uit commentaar: 'if bestCost(cnode, opt) <= ub: # Tweede kostfunctie'
 
 **Opmerking**:  
     
