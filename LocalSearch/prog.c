@@ -95,7 +95,7 @@ void printRequest(RequestNode *head) {
 
 void readInfo(Info *data) {
 
-    FILE *file = fopen("..\\input\\360_5_71_25.csv", "r");
+    FILE *file = fopen("360_5_71_25.csv", "r");
     fscanf(file, "+Requests: %d", &data->num_requests);
 
     char line[LINE_LENGTH]; 
@@ -128,7 +128,7 @@ void readInfo(Info *data) {
 
 RequestNode* readInput(Zone *zones, Vechicle *vehicles) {
 
-    FILE *file = fopen("..\\input\\360_5_71_25.csv", "r");
+    FILE *file = fopen("360_5_71_25.csv", "r");
 
     if (file == NULL) {
         printf("Error: file not found\n");
@@ -138,14 +138,16 @@ RequestNode* readInput(Zone *zones, Vechicle *vehicles) {
     // Read the number of requests on the first line
     char line[LINE_LENGTH]; 
     fgets(line, LINE_LENGTH, file);
-    memset(line, '\0', LINE_LENGTH);
 
     // Read all the requests
     Request request;
     RequestNode* head = NULL;
-
-    while (fgets(line, LINE_LENGTH, file) != NULL && strstr(line, "+Zones:") != NULL) {
-
+    
+    while (fgets(line, LINE_LENGTH, file) != NULL) {
+        
+        if (strstr(line, "+Zones:") != NULL) {
+            break;
+        }
         sscanf(line, "%[^;];%[^;];%d;%d;%d;%[^;];%d;%d", 
             request.id, request.zone_id, &request.day, &request.start_time, 
             &request.duration, request.vehicles, &request.penalty1, &request.penalty2);
@@ -156,8 +158,11 @@ RequestNode* readInput(Zone *zones, Vechicle *vehicles) {
 
     // Read the zones
     int i = 0;
-    while (fgets(line, LINE_LENGTH, file) != NULL && strstr(line, "+Vehicles:") != NULL) {
+    while (fgets(line, LINE_LENGTH, file) != NULL) {
 
+        if (strstr(line, "+Vehicles:") != NULL) {
+            break;
+        }
         sscanf(line, "%[^;];%[^\n]", zones[i].id, zones[i].adj_zones); 
         //printf("zones[%d].id: %s\n", i, zones[i].adj_zones);
         i++;
@@ -165,8 +170,10 @@ RequestNode* readInput(Zone *zones, Vechicle *vehicles) {
 
     // Read the vehicles
     i = 0;
-    while (fgets(line, LINE_LENGTH, file) != NULL && strstr(line, "+Days:") != NULL) {
-        
+    while (fgets(line, LINE_LENGTH, file) != NULL) {
+        if (strstr(line, "+Days:") != NULL) {
+            break;
+        }
         sscanf(line, "%[^\n]", vehicles[i].id);
         //printf("vehicles[%d]: %s\n", i, vehicles[i].id);
         i++;
@@ -180,7 +187,13 @@ int main() {
 
     Info *data = createInformation();
     readInfo(data);
-    
+
+    // information
+    printf("Number of requests: %d\n", data->num_requests);
+    printf("Number of zones: %d\n", data->num_zones);
+    printf("Number of vehicles: %d\n", data->num_vehicles);
+    printf("Number of days: %d\n", data->num_days);
+    printf("\n");
 
     // Create the data structures
     Zone *zones = createZones(data->num_zones);
@@ -188,22 +201,16 @@ int main() {
 
     RequestNode *head = readInput(zones, vehicles);
 
-    printf("zones[%d].id: %s\n", 0, zones[0].adj_zones);
+    /*
+    printf("zones[%d].id: %s\n", 0, zones[1].id);
+    printf("zones[%d].adj_zones: %s\n", 0, zones[1].adj_zones);
     printf("vehicles[%d]: %s\n", 0, vehicles[0].id);
+    printf("head data %d %d\n", head->next->data.penalty1, head->next->data.penalty2);
+    */
 
-    //printf("Penalty 1: %d 2:%d\n", head->next->data.penalty1, head->next->data.penalty2);
-
-    // information
-    printf("Number of requests: %d\n", data->num_requests);
-    printf("Number of zones: %d\n", data->num_zones);
-    printf("Number of vehicles: %d\n", data->num_vehicles);
-    printf("Number of days: %d\n", data->num_days);
-
-    //printRequest(head->next);
-
-    /*for (int i = 0; i < data->num_zones; i++) {
+    for (int i = 0; i < data->num_zones; i++) {
         printf("%s %s\n", zones[i].id, zones[i].adj_zones);
-    }*/
+    }
     
     return 0;
 }
