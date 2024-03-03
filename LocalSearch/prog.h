@@ -1,10 +1,10 @@
 #define LINE_LENGTH 500
 #define MAX 100
-#define ID 10
+#define ID_LENGTH 20
 
 typedef struct Request {
-    char id[ID];
-    char zone_id[ID];
+    char id[ID_LENGTH];
+    char zone_id[ID_LENGTH];
     int day;
     int start_time;
     int duration;
@@ -26,6 +26,10 @@ typedef struct Info {
 } Info;
 
 typedef struct Zone {
-    char id[ID];
+    char id[ID_LENGTH];
     char adj_zones[MAX]; 
 } Zone;
+
+typedef struct Vechicle {
+    char id[ID_LENGTH];
+} Vechicle;
