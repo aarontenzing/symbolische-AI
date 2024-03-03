@@ -19,25 +19,14 @@ def finalDistance(node):
     
     return dist + arr[node[0],node[-1]]
 
-def bestCost(node):
-
-    node1 = node.copy()
-    # print("orig node:",node1)
-    check = node1.pop()
-
+def bestCost(node, options):
     lb = 0
-    lb += (2*finalDistance(node1))
-    # print("node:",node1)
-    # print("option:",check)
-
-    distances = list(arr[check])
-    distances = [distances[x] for x in node1]
-
-    distances.sort()
-    # print("distances:",distances)
-    lb += distances[0]
-    if(len(distances) > 1):
-        lb += distances[1]
+    opt = list(np.setdiff1d(options,node))
+    lb += 2*finalDistance(node)
+    for x in opt:
+        distances = list(arr[x])
+        distances.sort()
+        lb += distances[0] + distances[1]
 
     return lb/2
 
