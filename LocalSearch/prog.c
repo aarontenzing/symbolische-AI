@@ -125,7 +125,7 @@ void readInfo(Info *data) {
 }
 
 
-RequestNode* readInput(Zone *zones, Vechicle *vehicles) {
+RequestNode* readInput(Zone *zones, Vehicle *vehicles) {
 
     FILE *file = fopen("360_5_71_25.csv", "r");
 
