@@ -182,6 +182,23 @@ RequestNode* readInput(Zone *zones, Vehicle *vehicles) {
     return head;
 }
 
+RequestNode* getItem(RequestNode* head, int index) {
+    RequestNode* curr = head;
+    int i = 0;
+    
+    while (i < index) {
+        if (curr->next == NULL) {
+            printf("ERROR");
+            return NULL;
+        }
+        curr = curr->next;
+        i++;
+    }
+
+    return curr;
+}
+
+
 int main() {
 
     Info *data = createInformation();
@@ -207,8 +224,32 @@ int main() {
     printf("head data %d %d\n", head->next->data.penalty1, head->next->data.penalty2);
     */
 
+    /*
     for (int i = 0; i < data->num_zones; i++) {
         printf("%s %s\n", zones[i].id, zones[i].adj_zones);
+    }
+    */
+
+    // Array of length cars (index == zone)
+    // Value in array is the car
+    RequestNode* req = getItem(head, 35);
+    printf("test of get %s %d\n", req->data.id, req->data.penalty1);
+
+    int vehicle_assign[data->num_vehicles];
+    int j = data->num_zones;
+
+    for (int i = 0; i < data->num_vehicles; i++) {
+        vehicle_assign[i] = j--;
+    }
+
+    printf("car-%d assigned to z%d\n", 6, vehicle_assign[6]);
+
+    int request_assign[data->num_requests];
+    j = data->num_vehicles;
+
+    for (int i = 0; i < data->num_requests; i++) {
+        // request -> enkel toewijzen aan voertuig in eigen zone, aanliggende zone
+        
     }
     
     return 0;
