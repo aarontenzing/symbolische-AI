@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "prog.h"
 
 
@@ -33,7 +32,7 @@ Zone* createZones(int num_zones) {
 }
 
 
-Vechicle* createVechicles(int num_vehicles) {
+Vechicle* createVehicles(int num_vehicles) {
     Vechicle *vechicles =  (Vechicle *)malloc(num_vehicles * sizeof(Vechicle));
     if (vechicles == NULL) {
         printf("Memory allocation failed for Vechicles.\n");
@@ -197,7 +196,7 @@ int main() {
 
     // Create the data structures
     Zone *zones = createZones(data->num_zones);
-    Vechicle *vehicles = createVechicles(data->num_vehicles);
+    Vechicle *vehicles = createVehicles(data->num_vehicles);
 
     RequestNode *head = readInput(zones, vehicles);
 
