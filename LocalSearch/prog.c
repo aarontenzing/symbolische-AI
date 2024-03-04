@@ -32,14 +32,14 @@ Zone* createZones(int num_zones) {
 }
 
 
-Vechicle* createVehicles(int num_vehicles) {
-    Vechicle *vechicles =  (Vechicle *)malloc(num_vehicles * sizeof(Vechicle));
-    if (vechicles == NULL) {
+Vehicle* createVehicles(int num_vehicles) {
+    Vehicle *vehicles =  (Vehicle *)malloc(num_vehicles * sizeof(Vehicle));
+    if (vehicles == NULL) {
         printf("Memory allocation failed for Vechicles.\n");
         exit(EXIT_FAILURE);
     }
-    vechicles->id[0] = '\0';
-    return vechicles;
+    vehicles->id[0] = '\0';
+    return vehicles;
 }
 
 
