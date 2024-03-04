@@ -196,7 +196,7 @@ int main() {
 
     // Create the data structures
     Zone *zones = createZones(data->num_zones);
-    Vechicle *vehicles = createVehicles(data->num_vehicles);
+    Vehicle *vehicles = createVehicles(data->num_vehicles);
 
     RequestNode *head = readInput(zones, vehicles);
 

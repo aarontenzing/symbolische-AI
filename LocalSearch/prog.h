@@ -30,6 +30,6 @@ typedef struct Zone {
     char adj_zones[MAX]; 
 } Zone;
 
-typedef struct Vechicle {
+typedef struct Vehicle {
     char id[ID_LENGTH];
-} Vechicle;
+} Vehicle;
