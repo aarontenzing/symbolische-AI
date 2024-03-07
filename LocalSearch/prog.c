@@ -249,7 +249,7 @@ int main() {
 
     for (int i = 0; i < data->num_requests; i++) {
         // request -> enkel toewijzen aan voertuig in eigen zone, aanliggende zone
-        
+        //         
     }
     
     return 0;
