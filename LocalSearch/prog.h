@@ -3,8 +3,8 @@
 #define ID_LENGTH 20
 
 typedef struct Request {
-    char id[ID_LENGTH];
-    char zone_id[ID_LENGTH];
+    int id;
+    int zone_id;
     int day;
     int start_time;
     int duration;
@@ -26,10 +26,6 @@ typedef struct Info {
 } Info;
 
 typedef struct Zone {
-    char id[ID_LENGTH];
+    int id;
     char adj_zones[MAX]; 
 } Zone;
-
-typedef struct Vehicle {
-    char id[ID_LENGTH];
-} Vehicle;
