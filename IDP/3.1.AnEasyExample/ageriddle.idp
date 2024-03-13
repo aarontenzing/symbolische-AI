@@ -1,0 +1,21 @@
+vocabulary AgeRiddleVoc {
+    type age := {0..100}
+    Jef: () -> age
+    YChild: () -> age
+    MChild: () -> age
+    EChild: () -> age
+}
+
+theory Rules:AgeRiddleVoc {
+    YChild() * 10 + MChild() = Jef().
+    YChild() + MChild() = EChild().
+    YChild() + MChild() + EChild() + Jef() = 33.
+    YChild() > 0.
+}
+
+structure Riddle:AgeRiddleVoc { 
+}
+
+procedure main() {
+    pretty_print(model_expand(Rules,Riddle))
+}

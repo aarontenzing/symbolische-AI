@@ -1,0 +1,25 @@
+vocabulary Letterpuzzle {
+  type even := {0,2,4,6,8}
+  type oneven := {1,2,3,7,9}
+  A: () -> even
+  B: () -> oneven
+  C: () -> oneven
+  D: () -> oneven
+  E: () -> even
+  I: () -> even
+}
+
+theory Rules:Letterpuzzle {
+  A() * 10 + I() + B() * 10 + A() = C() * 100 + D() * 10 + E().
+  A() ~= B() & A() ~= C() & A() ~= D() & A() ~= E() & A() ~= I().
+  B() ~= C() & B() ~= D() & B() ~= E() & B() ~= I().
+  C() ~= D() & C() ~= E() & C() ~= I().
+  D() ~= E() & D() ~= I().
+}
+
+structure Puzzle:Letterpuzzle { 
+}
+
+procedure main() {
+    pretty_print(model_expand(Rules,Puzzle))
+}
