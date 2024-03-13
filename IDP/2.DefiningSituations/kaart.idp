@@ -1,0 +1,13 @@
+vocabulary CountryVoc {
+  type country
+  border: country * country -> Bool
+  inhabitants: country -> Int
+  french: country -> Bool
+}
+
+structure EuropeMap:CountryVoc {
+    country := {Belgium,France,Netherland,Luxemburg,Germany}.
+    border := {(Belgium,France),(Belgium,Netherland),(Belgium,Germany),(Belgium,Luxemburg),(Luxemburg,France),(Luxemburg, Germany),(Netherland,Germany)}.
+    inhabitants := {(Belgium->11),(Netherland->17), (France->15), (Luxemburg->4)}
+    french := {(Belgium->True), (Netherland->False), (France->True), (Germany->False), (Luxemburg->True)}
+}
