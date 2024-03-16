@@ -25,8 +25,11 @@ Zone* createZones(int num_zones) {
         printf("Memory allocation failed for Zones.\n");
         exit(EXIT_FAILURE);
     }
-    zones->id = 0;
-    zones->adj_zones[0] = '\0';
+    for(int i = 0;i<num_zones;i++){
+        zones[i].id = 0;
+        zones[i].adj_zones[0] = '\0';
+        memset(zones[i].voertuigen, 0, sizeof(int)*MAX);
+    }
     return zones;
 }
 
@@ -71,7 +74,7 @@ RequestNode* appendRequest(RequestNode *head, RequestNode *newNode) {
 void printRequest(RequestNode *head) {
     RequestNode *current = head;
     while (current != NULL) {
-        printf("%s %s %d %d %d %s %d %d\n", 
+        printf("%d %d %d %d %d %s %d %d\n", 
             current->data.id, current->data.zone_id, current->data.day, 
             current->data.start_time, current->data.duration, current->data.vehicles, 
             current->data.penalty1, current->data.penalty2);
@@ -82,7 +85,8 @@ void printRequest(RequestNode *head) {
 
 void readInfo(Info *data) {
 
-    FILE *file = fopen("360_5_71_25.csv", "r");
+    // FILE *file = fopen("360_5_71_25.csv", "r");
+    FILE *file = fopen("voorbeeld_input.csv", "r");
     fscanf(file, "+Requests: %d", &data->num_requests);
 
     char line[LINE_LENGTH]; 
@@ -115,7 +119,8 @@ void readInfo(Info *data) {
 
 RequestNode* readInput(Zone *zones) {
 
-    FILE *file = fopen("360_5_71_25.csv", "r");
+    // FILE *file = fopen("360_5_71_25.csv", "r");
+    FILE *file = fopen("voorbeeld_input.csv", "r");
 
     if (file == NULL) {
         printf("Error: file not found\n");
@@ -151,7 +156,7 @@ RequestNode* readInput(Zone *zones) {
             break;
         }
         sscanf(line, "z%d;%[^\n]", &zones[i].id, zones[i].adj_zones); 
-        // printf("zones[%d].id: %s\n", i, zones[i].adj_zones);
+        printf("zones[%d].id: %s\n", i, zones[i].adj_zones);
         i++;
     }
 

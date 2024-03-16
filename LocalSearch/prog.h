@@ -28,4 +28,5 @@ typedef struct Info {
 typedef struct Zone {
     int id;
     char adj_zones[MAX]; 
+    int voertuigen[MAX];
 } Zone;
