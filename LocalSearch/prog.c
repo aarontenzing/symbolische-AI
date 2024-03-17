@@ -46,8 +46,7 @@ int assign(int id,Zone* zones,int size, int availvehic[size],int request){
 
 
 int main() {
-
-    int currVehicle;
+    int totalCost = 0;
     Info *data = createInformation();
     readInfo(data);
 
@@ -61,22 +60,16 @@ int main() {
     // Create the data structures
     Zone* zones = createZones(data->num_zones); 
     RequestNode *head = readInput(zones);
-    // printf("werkt dit? zones[%d].id: %s\n", 5, zones[5].adj_zones);
-    // printf("werkt dit? zones[%d].voertuigen[0]: %d\n", 1, zones[1].voertuigen[0]);
 
     // Create vehicles
     int vehicles[data->num_vehicles];
     memset(vehicles, 0, sizeof(vehicles));
-    // const int SOURCE[MAX] = {1,4,5,2,3,0};
-    // memcpy(vehicles, SOURCE, sizeof(vehicles));
     int availvehic[data->num_vehicles];
     memset(availvehic, -1, sizeof(availvehic));
-
 
     // Create adjacent zones
     int adjzones[data->num_zones];
     memset(adjzones, -1, sizeof(adjzones));
-
 
     // Create requests (reservaties)
     int requests[data->num_requests];
@@ -146,15 +139,19 @@ int main() {
                 n++;
                 // printf("adj_zone: %d\n",adj_zone);
                 requests[i] = assign(adj_zone,zones,data->num_vehicles,availvehic,requests[i]);   
+                if(requests[i] != -1){
+                    totalCost += req->data.penalty2;
+                    break;
+                }
             }
         }
-        if(requests[i] == -1){
-            continue;
+        if(requests[i]==-1){
+            totalCost+= req->data.penalty1;
         }
         printf("req%d: car%d\n",i,requests[i]);
         
     }
-    
+    printf("Totalcost: %d\n",totalCost);
     return 0;
 }
 
