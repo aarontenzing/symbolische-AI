@@ -6,7 +6,6 @@
 
 int randomNumber(int upperBound) {
 
-    // srand(2020);
     // random number between 0 and RAND_MAX
     double normalized_random = (double)rand() / RAND_MAX;
 
@@ -16,8 +15,10 @@ int randomNumber(int upperBound) {
     return random_number;
 }
 
+
 int main() {
 
+    int currVehicle;
     Info *data = createInformation();
     readInfo(data);
 
@@ -38,15 +39,20 @@ int main() {
     // Create vehicles
     int vehicles[data->num_vehicles];
     memset(vehicles, 0, sizeof(vehicles));
+    // const int SOURCE[MAX] = {1,4,5,2,3,0};
+    // memcpy(vehicles, SOURCE, sizeof(vehicles));
+    int availvehic[data->num_vehicles];
+    memset(availvehic, -1, sizeof(availvehic));
 
-    // Create zones
-    //int zones[data->num_zones];
-    //memset(zones, 0, sizeof(zones));
+
+    // Create adjacent zones
+    int adjzones[data->num_zones];
+    memset(zones, -1, sizeof(zones));
 
 
     // Create requests (reservaties)
     int requests[data->num_requests];
-    memset(requests, 0, sizeof(requests));
+    memset(requests, -1, sizeof(requests));
 
     // Array of length vehicles 
     // index == vehicle, value == zone
@@ -56,9 +62,9 @@ int main() {
         rand_zone = randomNumber(data->num_zones);
         printf("Vehicle %d assign to zone %d.\n", i, rand_zone); 
         vehicles[i] = rand_zone; // assign zone to vehicle
-        //zones[rand_zone] = i; // assign vehicle to zone
+        //assign vehicle to zone
         int j = 0;
-        while(zones[rand_zone].voertuigen[j] != 0){
+        while(zones[rand_zone].voertuigen[j] != -1){
             j++;
         }
         zones[rand_zone].voertuigen[j] = i;
@@ -66,22 +72,12 @@ int main() {
 
     
 
-    for (int i = 0; i < data->num_zones; i++) {
-        for (int j = 0; j < data->num_vehicles; j++) {
+    // for (int i = 0; i < data->num_zones; i++) {
+    //     for (int j = 0; j < data->num_vehicles; j++) {
             
-            printf("zone %d: %d\n",i,zones[i].voertuigen[j]);
+    //         printf("zone %d: %d\n",i,zones[i].voertuigen[j]);
 
-        }
-    }
-
-
-    // char * save2;
-    // cars = strtok_r(cars,",",&save2);
-    // while(cars != NULL){
-    //     int k;
-    //     sscanf(cars,"%3s%d",&k);
-    //     cars = strtok_r(NULL,",",&save2);
-
+    //     }
     // }
 
     // Array van requests 
@@ -91,9 +87,59 @@ int main() {
     for (int i = 0; i < data->num_requests; i++) {
         // request -> enkel toewijzen aan voertuig in eigen zone, aanliggende zone
         req = getItem(head, i);
-        printf("req id: %d \n", req->data.id);
+        // printf("req id: %d \n", req->data.id);
         //int currVehicle = zones[req->data.zone_id];
         // check of current vehicle mogelijk is voor huidige zone??
+        
+        // lijst met beschikbare voertuigen op die zone
+        char *save;
+        char* car;
+        car = strtok_r(req->data.vehicles,",",&save);
+        int k = 0;
+        memset(availvehic, -1, sizeof(availvehic));
+        while(car != NULL){
+            
+            sscanf(car,"%*3s%d",&availvehic[k]);
+            car = strtok_r(NULL,",",&save);
+            k++;
+        }
+        // for (int j = 0; j < data->num_vehicles; j++) {
+        //     printf("available vehicles : %d\n",availvehic[j]);
+        // }
+
+        //staat er 1 van de auto's in die zone in de zones struct
+        for (int j = 0; j < data->num_vehicles; j++) {
+            
+            currVehicle = zones[req->data.zone_id].voertuigen[j];
+
+            if(currVehicle == -1){
+                    continue;
+            }
+
+            for (int l = 0; l < data->num_vehicles; l++) {
+            
+                if(availvehic[l] == -1){
+                    continue;
+                }
+                if(currVehicle == availvehic[l]){
+                    requests[i] = currVehicle;
+                    printf("req%d: car%d\n",i,requests[i]);
+                    
+                }
+                
+            }
+            
+        }
+
+        // kijken of we auto's van aanliggende zones kunnen toewijzen
+        // if(requests[i]==-1){
+        //         int n = 0;
+        //         while(zones[req->data.zone_id].adj_zones[n] != -1){
+        //             int loc = zones[req->data.zone_id].adj_zones[n];
+
+                    
+        //         }
+        //     }
         
     }
     

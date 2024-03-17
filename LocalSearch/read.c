@@ -27,8 +27,9 @@ Zone* createZones(int num_zones) {
     }
     for(int i = 0;i<num_zones;i++){
         zones[i].id = 0;
-        zones[i].adj_zones[0] = '\0';
-        memset(zones[i].voertuigen, 0, sizeof(int)*MAX);
+        // zones[i].adj_zones[0] = '\0';
+        memset(zones[i].adj_zones, -1, sizeof(int)*MAX);
+        memset(zones[i].voertuigen, -1, sizeof(int)*MAX);
     }
     return zones;
 }
@@ -129,6 +130,7 @@ RequestNode* readInput(Zone *zones) {
     
     // Read the number of requests on the first line
     char line[LINE_LENGTH]; 
+    char adj_zones[MAX];
     fgets(line, LINE_LENGTH, file);
 
     // Read all the requests
@@ -155,8 +157,26 @@ RequestNode* readInput(Zone *zones) {
         if (strstr(line, "+Vehicles:") != NULL) {
             break;
         }
-        sscanf(line, "z%d;%[^\n]", &zones[i].id, zones[i].adj_zones); 
-        printf("zones[%d].id: %s\n", i, zones[i].adj_zones);
+        sscanf(line, "z%d;%[^\n]", &zones[i].id, adj_zones); 
+
+        char *token = strtok(adj_zones, ",");
+        // token = strtok(NULL, ",");
+        int count = 0;
+        while (token != NULL) {
+            // Extract the numeric part by skipping the first character "z"
+            int adjzone = atoi(token + 1);
+            // Store the extracted number in the array
+            zones[i].adj_zones[count++] = adjzone;
+            // Move to the next token
+            token = strtok(NULL, ",");
+        }
+
+
+        printf("zones[%d].id: %s\n", i, adj_zones);
+        for (int k = 0; k < count; k++) {
+            printf("%d ", zones[i].adj_zones[k]);
+        }
+        printf("\n");
         i++;
     }
 
