@@ -15,6 +15,35 @@ int randomNumber(int upperBound) {
     return random_number;
 }
 
+int assign(int id,Zone* zones,int size, int availvehic[size],int request){
+
+    // for (int j = 0; j < data->num_vehicles; j++) {
+    for (int j = 0; j < size; j++) {
+            
+        int currVehicle = zones[id].voertuigen[j];
+
+        if(currVehicle == -1){
+                continue;
+        }
+
+        for (int l = 0; l < size; l++) {
+        
+            if(availvehic[l] == -1){
+                continue;
+            }
+            if(currVehicle == availvehic[l]){
+                request = currVehicle;
+                // printf("req\n");
+                
+            }
+            
+        }
+            
+    }
+    return request;
+
+}
+
 
 int main() {
 
@@ -34,7 +63,6 @@ int main() {
     RequestNode *head = readInput(zones);
     // printf("werkt dit? zones[%d].id: %s\n", 5, zones[5].adj_zones);
     // printf("werkt dit? zones[%d].voertuigen[0]: %d\n", 1, zones[1].voertuigen[0]);
-    
 
     // Create vehicles
     int vehicles[data->num_vehicles];
@@ -47,7 +75,7 @@ int main() {
 
     // Create adjacent zones
     int adjzones[data->num_zones];
-    memset(zones, -1, sizeof(zones));
+    memset(adjzones, -1, sizeof(adjzones));
 
 
     // Create requests (reservaties)
@@ -60,7 +88,7 @@ int main() {
     int rand_zone;
     for (int i = 0; i < data->num_vehicles; i++) {
         rand_zone = randomNumber(data->num_zones);
-        printf("Vehicle %d assign to zone %d.\n", i, rand_zone); 
+        //printf("Vehicle %d assign to zone %d.\n", i, rand_zone); 
         vehicles[i] = rand_zone; // assign zone to vehicle
         //assign vehicle to zone
         int j = 0;
@@ -70,7 +98,6 @@ int main() {
         zones[rand_zone].voertuigen[j] = i;
     }
 
-    
 
     // for (int i = 0; i < data->num_zones; i++) {
     //     for (int j = 0; j < data->num_vehicles; j++) {
@@ -87,9 +114,7 @@ int main() {
     for (int i = 0; i < data->num_requests; i++) {
         // request -> enkel toewijzen aan voertuig in eigen zone, aanliggende zone
         req = getItem(head, i);
-        // printf("req id: %d \n", req->data.id);
-        //int currVehicle = zones[req->data.zone_id];
-        // check of current vehicle mogelijk is voor huidige zone??
+        //printf("req id: %d \n", req->data.id);
         
         // lijst met beschikbare voertuigen op die zone
         char *save;
@@ -108,38 +133,25 @@ int main() {
         // }
 
         //staat er 1 van de auto's in die zone in de zones struct
-        for (int j = 0; j < data->num_vehicles; j++) {
-            
-            currVehicle = zones[req->data.zone_id].voertuigen[j];
-
-            if(currVehicle == -1){
-                    continue;
-            }
-
-            for (int l = 0; l < data->num_vehicles; l++) {
-            
-                if(availvehic[l] == -1){
-                    continue;
-                }
-                if(currVehicle == availvehic[l]){
-                    requests[i] = currVehicle;
-                    printf("req%d: car%d\n",i,requests[i]);
-                    
-                }
-                
-            }
-            
-        }
+        requests[i] = assign(req->data.zone_id,zones,data->num_vehicles,availvehic,requests[i]);
 
         // kijken of we auto's van aanliggende zones kunnen toewijzen
-        // if(requests[i]==-1){
-        //         int n = 0;
-        //         while(zones[req->data.zone_id].adj_zones[n] != -1){
-        //             int loc = zones[req->data.zone_id].adj_zones[n];
-
-                    
-        //         }
-        //     }
+        if(requests[i]==-1){
+            // printf("Zone ID: %d\n",req->data.zone_id);
+            // printf("Eerste aanliggende Zone: %d\n",zones[req->data.zone_id].adj_zones[0]);
+            //exit(0);
+            int n = 0;
+            while(zones[req->data.zone_id].adj_zones[n] != -1){
+                int adj_zone = zones[req->data.zone_id].adj_zones[n];
+                n++;
+                // printf("adj_zone: %d\n",adj_zone);
+                requests[i] = assign(adj_zone,zones,data->num_vehicles,availvehic,requests[i]);   
+            }
+        }
+        if(requests[i] == -1){
+            continue;
+        }
+        printf("req%d: car%d\n",i,requests[i]);
         
     }
     
