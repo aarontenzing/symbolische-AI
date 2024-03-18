@@ -63,7 +63,6 @@ int assign(RequestNode* head,RequestNode* req,int id,Zone* zones,int num_vehicle
         }
 
         for (int l = 0; l < num_vehicles; l++) {
-        
             if(availvehic[l] == -1){
                 continue;
             }
@@ -77,19 +76,23 @@ int assign(RequestNode* head,RequestNode* req,int id,Zone* zones,int num_vehicle
                         //printf("Match\n");
 
                         oldreq = getItem(head,k);
-                        if(oldreq->data.day != req->data.day){
-                            request = currVehicle;
+                        // if(oldreq->data.day == req->data.day){
+                        //     //request = currVehicle;
+                        //     return request;
+                        // }
+                        printf("Request: %d ,Old day %d, New old day %d,total time: %d , new start time: %d\n",k,oldreq->data.day,req->data.day,oldreq->data.start_time + oldreq->data.duration,req->data.start_time);
+
+                        if(oldreq->data.day == req->data.day && oldreq->data.start_time + oldreq->data.duration > req->data.start_time){
+                            //request = currVehicle;
+                            printf("hier\n");
+                            //printf("Old total time: %d , new start time: %d\n",oldreq->data.start_time + oldreq->data.duration,req->data.start_time);
                             return request;
                         }
-                        else if(oldreq->data.start_time + oldreq->data.duration < req->data.start_time){
-                            request = currVehicle;
-                            return request;
-                        }else{
-                            return request;
-                        }
-                    }
-                        
-                    
+                        printf("appel\n");
+                        //else{
+                        //     return request;
+                        // }
+                    }           
                 }
                 request = currVehicle;
             }
@@ -104,6 +107,7 @@ int assign(RequestNode* head,RequestNode* req,int id,Zone* zones,int num_vehicle
 
 int main() {
     int totalCost = 0;
+    int bestCost = 0;
     Info *data = createInformation();
     readInfo(data);
 
@@ -136,8 +140,7 @@ int main() {
     int unassigned[data->num_requests];
     memset(unassigned, -1, sizeof(unassigned));
 
-    // Array of length vehicles 
-    // index == vehicle, value == zone
+   
     // Assign a random zone to a vehicle.
     int rand_zone;
     for (int i = 0; i < data->num_vehicles; i++) {
@@ -151,27 +154,14 @@ int main() {
         }
         zones[rand_zone].voertuigen[j] = i;
     }
-
-
-    // for (int i = 0; i < data->num_zones; i++) {
-    //     for (int j = 0; j < data->num_vehicles; j++) {
-            
-    //         printf("zone %d: %d\n",i,zones[i].voertuigen[j]);
-
-    //     }
-    // }
-
-    // Array van requests 
-    // index == request, value == vehicle
+     
     // Assign a appropriate vehicle to a request.
     int j = 0; // index for filling in unassigned requests
     RequestNode* req;
     for (int i = 0; i < data->num_requests; i++) {
         // request -> enkel toewijzen aan voertuig in eigen zone, aanliggende zone
         req = getItem(head, i);
-        //printf("req id: %d \n", req->data.id);
-        
-        // lijst met beschikbare voertuigen op die zone
+        //printf("req id: %d \n", req->data.id);   
         char *save;
         char* car;
         car = strtok_r(req->data.vehicles,",",&save);
@@ -216,6 +206,7 @@ int main() {
         
     }
     printf("Totalcost: %d\n",totalCost);
+
 
     solution(data->num_vehicles, data->num_requests, vehicles, requests, unassigned, totalCost);
 
