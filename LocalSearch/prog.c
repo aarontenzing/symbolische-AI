@@ -53,7 +53,7 @@ int randomNumber(int upperBound) {
 
 int assign(RequestNode* head,RequestNode* req,int id,Zone* zones,int num_vehicles, int availvehic[num_vehicles], int request, int num_requests ,int requests[num_requests]){
     RequestNode* oldreq;
-    
+    // printf("req->data.zone_id: %d ",id);
     for (int j = 0; j < num_vehicles; j++) {
             
         int currVehicle = zones[id].voertuigen[j];
@@ -68,30 +68,17 @@ int assign(RequestNode* head,RequestNode* req,int id,Zone* zones,int num_vehicle
             }
             if(currVehicle == availvehic[l]){
                 for(int k = 0; k < num_requests; k++){
-                    if(requests[k] == -1){
-                        //printf("Hier\n");
-                        break;
-                    }
+                    
                     if(requests[k] == currVehicle){
-                        //printf("Match\n");
 
                         oldreq = getItem(head,k);
-                        // if(oldreq->data.day == req->data.day){
-                        //     //request = currVehicle;
-                        //     return request;
-                        // }
-                        printf("Request: %d ,Old day %d, New old day %d,total time: %d , new start time: %d\n",k,oldreq->data.day,req->data.day,oldreq->data.start_time + oldreq->data.duration,req->data.start_time);
-
+                        //printf("\nRequest: %d ,Old day %d, New old day %d,total time: %d , new start time: %d\n",k,oldreq->data.day,req->data.day,oldreq->data.start_time + oldreq->data.duration,req->data.start_time);
                         if(oldreq->data.day == req->data.day && oldreq->data.start_time + oldreq->data.duration > req->data.start_time){
                             //request = currVehicle;
-                            printf("hier\n");
                             //printf("Old total time: %d , new start time: %d\n",oldreq->data.start_time + oldreq->data.duration,req->data.start_time);
                             return request;
                         }
-                        printf("appel\n");
-                        //else{
-                        //     return request;
-                        // }
+
                     }           
                 }
                 request = currVehicle;
@@ -178,7 +165,7 @@ int main() {
         // }
 
         //staat er 1 van de auto's in die zone in de zones struct
-        requests[i] = assign(head,req,req->data.zone_id,zones,data->num_vehicles,availvehic,requests[i],data->num_requests,requests);
+        requests[i] = assign(head,req,req->data.zone_id,zones,data->num_vehicles,availvehic,requests[i],i,requests);
 
         // kijken of we auto's van aanliggende zones kunnen toewijzen
         if(requests[i]==-1){
@@ -190,7 +177,7 @@ int main() {
                 int adj_zone = zones[req->data.zone_id].adj_zones[n];
                 n++;
                 // printf("adj_zone: %d\n",adj_zone);
-                requests[i] = assign(head,req,adj_zone,zones,data->num_vehicles,availvehic,requests[i],data->num_requests,requests);   
+                requests[i] = assign(head,req,adj_zone,zones,data->num_vehicles,availvehic,requests[i],i,requests);   
                 if(requests[i] != -1){
                     totalCost += req->data.penalty2;
                     break;

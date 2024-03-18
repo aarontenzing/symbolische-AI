@@ -172,11 +172,11 @@ RequestNode* readInput(Zone *zones) {
         }
 
 
-        printf("zones[%d].id: %s\n", i, adj_zones);
-        for (int k = 0; k < count; k++) {
-            printf("%d ", zones[i].adj_zones[k]);
-        }
-        printf("\n");
+        // printf("zones[%d].id: %s\n", i, adj_zones);
+        // for (int k = 0; k < count; k++) {
+        //     printf("%d ", zones[i].adj_zones[k]);
+        // }
+        // printf("\n");
         i++;
     }
 
