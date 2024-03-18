@@ -31,6 +31,7 @@ void solution(int size_vehicles, int size_requests, int vehicles[size_vehicles],
 
     int i = 0;
     while(unassigned[i] != -1) {
+        printf("unassigned %d\n", unassigned[i]);
         fprintf(file, "req%d\n", unassigned[i]);
         i++;
     }
@@ -163,6 +164,7 @@ int main() {
     // Array van requests 
     // index == request, value == vehicle
     // Assign a appropriate vehicle to a request.
+    int j = 0; // index for filling in unassigned requests
     RequestNode* req;
     for (int i = 0; i < data->num_requests; i++) {
         // request -> enkel toewijzen aan voertuig in eigen zone, aanliggende zone
@@ -174,7 +176,6 @@ int main() {
         char* car;
         car = strtok_r(req->data.vehicles,",",&save);
         int k = 0;
-        int j = 0; // index for filling in unassigned requests
         memset(availvehic, -1, sizeof(availvehic));
         while(car != NULL){
             
@@ -207,7 +208,7 @@ int main() {
             }
         }
         if(requests[i]==-1){
-            unassigned[j]= i ;
+            unassigned[j] = i;
             j++;
             totalCost+= req->data.penalty1;
         }
