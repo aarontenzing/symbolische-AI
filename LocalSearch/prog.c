@@ -3,6 +3,41 @@
 #include <string.h>
 #include "read.c" 
 
+void solution(int size_vehicles, int size_requests, int vehicles[size_vehicles], int requests[size_requests], int unassigned[size_requests], int totalCost) {
+    FILE *file = fopen("voorbeeld_output.csv", "w");
+
+    if (file == NULL) {
+        printf("Error opening the file");
+        return;
+    }
+
+    fprintf(file, "%d\n", totalCost);
+    fprintf(file, "+Vehicle assignments\n");
+
+    for (int i = 0; i < size_vehicles; i++) {
+        fprintf(file, "car%d;z%d\n", i, vehicles[i]);
+    }
+
+    fprintf(file, "+Assigned requests\n");
+
+    for (int i = 0; i < size_requests; i++) {
+        if (requests[i] == -1) {
+            continue;
+        }
+        fprintf(file, "req%d;car%d\n", i, requests[i]);
+    }
+
+    fprintf(file, "+Unassigned requests\n");
+
+    int i = 0;
+    while(unassigned[i] != -1) {
+        fprintf(file, "req%d\n", unassigned[i]);
+        i++;
+    }
+
+    fclose(file);
+    
+}
 
 int randomNumber(int upperBound) {
 
@@ -96,6 +131,10 @@ int main() {
     int requests[data->num_requests];
     memset(requests, -1, sizeof(requests));
 
+    // Unassigned requests
+    int unassigned[data->num_requests];
+    memset(unassigned, -1, sizeof(unassigned));
+
     // Array of length vehicles 
     // index == vehicle, value == zone
     // Assign a random zone to a vehicle.
@@ -135,6 +174,7 @@ int main() {
         char* car;
         car = strtok_r(req->data.vehicles,",",&save);
         int k = 0;
+        int j = 0; // index for filling in unassigned requests
         memset(availvehic, -1, sizeof(availvehic));
         while(car != NULL){
             
@@ -167,12 +207,17 @@ int main() {
             }
         }
         if(requests[i]==-1){
+            unassigned[j]= i ;
+            j++;
             totalCost+= req->data.penalty1;
         }
         printf("req%d: car%d\n",i,requests[i]);
         
     }
     printf("Totalcost: %d\n",totalCost);
+
+    solution(data->num_vehicles, data->num_requests, vehicles, requests, unassigned, totalCost);
+
     return 0;
 }
 
