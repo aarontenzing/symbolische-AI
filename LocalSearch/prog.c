@@ -1,10 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "read.c" 
 
-void solution(int size_vehicles, int size_requests, int vehicles[size_vehicles], int requests[size_requests], int unassigned[size_requests], int totalCost) {
+
+void solution(int num_vehicles, int num_requests, int vehicles[num_vehicles], int requests[num_requests], int totalCost) {
     FILE *file = fopen("voorbeeld_output.csv", "w");
+    
+    // Unassigned requests
+    int unassigned[num_requests];
+    memset(unassigned, -1, sizeof(unassigned));
+    int idx = 0;
 
     if (file == NULL) {
         printf("Error opening the file");
@@ -14,14 +21,16 @@ void solution(int size_vehicles, int size_requests, int vehicles[size_vehicles],
     fprintf(file, "%d\n", totalCost);
     fprintf(file, "+Vehicle assignments\n");
 
-    for (int i = 0; i < size_vehicles; i++) {
+    for (int i = 0; i < num_vehicles; i++) {
         fprintf(file, "car%d;z%d\n", i, vehicles[i]);
     }
 
     fprintf(file, "+Assigned requests\n");
 
-    for (int i = 0; i < size_requests; i++) {
+    for (int i = 0; i < num_requests; i++) {
         if (requests[i] == -1) {
+            unassigned[idx] = i;
+            idx++;
             continue;
         }
         fprintf(file, "req%d;car%d\n", i, requests[i]);
@@ -31,24 +40,16 @@ void solution(int size_vehicles, int size_requests, int vehicles[size_vehicles],
 
     int i = 0;
     while(unassigned[i] != -1) {
-        printf("unassigned %d\n", unassigned[i]);
         fprintf(file, "req%d\n", unassigned[i]);
         i++;
     }
 
-    fclose(file);
-    
+    fclose(file);   
 }
 
 int randomNumber(int upperBound) {
-
-    // random number between 0 and RAND_MAX
-    double normalized_random = (double)rand() / RAND_MAX;
-
-    // Scale the random number to the desired range
-    int random_number = (int)(normalized_random * upperBound);
-
-    return random_number;
+    // Seed the random number generator with the current time
+    return rand() % upperBound;
 }
 
 int assign(RequestNode* head,RequestNode* req,int id,Zone* zones,int num_vehicles, int availvehic[num_vehicles], int request, int num_requests ,int requests[num_requests]){
@@ -91,6 +92,42 @@ int assign(RequestNode* head,RequestNode* req,int id,Zone* zones,int num_vehicle
 
 }
 
+void swap(int* x, int* y) {
+    int tmp = *x;
+    *x = *y;
+    *y = tmp;
+}
+
+void swap_car(int num_vehicles, int vehicles[num_vehicles], Zone* zones) {
+    
+    int car1, car2;
+    do {
+        car1 = randomNumber(num_vehicles);
+        car2 = randomNumber(num_vehicles);
+        
+    } while(car1 == car2 || vehicles[car1] == vehicles[car2]);
+
+    //printf("vehicle %d zone %d, vehicle %d zone %d \n", car1, vehicles[car1], car2, vehicles[car2]);
+    // swap zones in vehicles array
+    swap(vehicles + car1, vehicles + car2);
+    //printf(" swapped : vehicle %d zone %d, vehicle %d zone %d \n", car1, vehicles[car1], car2, vehicles[car2]);
+    int zone1 = vehicles[car1];
+    int zone2 = vehicles[car2];
+
+    // change voertuig in zone array (struct)
+    int i = 0;
+    while (zones[zone1].voertuigen[i] != car2) {
+        i++;
+    }
+    zones[zone1].voertuigen[i] = car1;
+
+    i = 0;
+     while (zones[zone2].voertuigen[i] != car1) {
+        i++;
+    }
+    zones[zone2].voertuigen[i] = car2;
+
+}
 
 int main() {
     int totalCost = 0;
@@ -112,6 +149,7 @@ int main() {
     // Create vehicles
     int vehicles[data->num_vehicles];
     memset(vehicles, 0, sizeof(vehicles));
+
     int availvehic[data->num_vehicles];
     memset(availvehic, -1, sizeof(availvehic));
 
@@ -122,18 +160,15 @@ int main() {
     // Create requests (reservaties)
     int requests[data->num_requests];
     memset(requests, -1, sizeof(requests));
-
-    // Unassigned requests
-    int unassigned[data->num_requests];
-    memset(unassigned, -1, sizeof(unassigned));
-
    
     // Assign a random zone to a vehicle.
+    srand(time(NULL));
     int rand_zone;
     for (int i = 0; i < data->num_vehicles; i++) {
         rand_zone = randomNumber(data->num_zones);
-        //printf("Vehicle %d assign to zone %d.\n", i, rand_zone); 
+        printf("random %d\n", rand_zone);
         vehicles[i] = rand_zone; // assign zone to vehicle
+
         //assign vehicle to zone
         int j = 0;
         while(zones[rand_zone].voertuigen[j] != -1){
@@ -141,37 +176,29 @@ int main() {
         }
         zones[rand_zone].voertuigen[j] = i;
     }
-     
+
+    // Initial solution
     // Assign a appropriate vehicle to a request.
-    int j = 0; // index for filling in unassigned requests
     RequestNode* req;
     for (int i = 0; i < data->num_requests; i++) {
-        // request -> enkel toewijzen aan voertuig in eigen zone, aanliggende zone
         req = getItem(head, i);
-        //printf("req id: %d \n", req->data.id);   
         char *save;
         char* car;
         car = strtok_r(req->data.vehicles,",",&save);
         int k = 0;
-        memset(availvehic, -1, sizeof(availvehic));
+        memset(availvehic, -1, sizeof(availvehic)); 
+        // vehicles die bij request moeten horen parsen
         while(car != NULL){
-            
             sscanf(car,"%*3s%d",&availvehic[k]);
             car = strtok_r(NULL,",",&save);
             k++;
         }
-        // for (int j = 0; j < data->num_vehicles; j++) {
-        //     printf("available vehicles : %d\n",availvehic[j]);
-        // }
 
         //staat er 1 van de auto's in die zone in de zones struct
-        requests[i] = assign(head,req,req->data.zone_id,zones,data->num_vehicles,availvehic,requests[i],i,requests);
+        requests[i] = assign(head, req, req->data.zone_id, zones, data->num_vehicles, availvehic, requests[i], i, requests);
 
         // kijken of we auto's van aanliggende zones kunnen toewijzen
         if(requests[i]==-1){
-            // printf("Zone ID: %d\n",req->data.zone_id);
-            // printf("Eerste aanliggende Zone: %d\n",zones[req->data.zone_id].adj_zones[0]);
-            //exit(0);
             int n = 0;
             while(zones[req->data.zone_id].adj_zones[n] != -1){
                 int adj_zone = zones[req->data.zone_id].adj_zones[n];
@@ -185,17 +212,77 @@ int main() {
             }
         }
         if(requests[i]==-1){
-            unassigned[j] = i;
-            j++;
-            totalCost+= req->data.penalty1;
+            totalCost += req->data.penalty1;
         }
-        printf("req%d: car%d\n",i,requests[i]);
+
+        (requests[i] != -1) ? printf("req%d: car%d\n", i, requests[i]) : 0;
         
     }
     printf("Totalcost: %d\n",totalCost);
+    
+    // LocalSearch
+    // vehicles, requests & totalCost -> when best solution found write to file
+    bestCost = totalCost;
+    solution(data->num_vehicles, data->num_requests, vehicles, requests, totalCost);
+    totalCost = 0;
+    int runs = 0;
+    while (runs < 100000) {
+        swap_car(data->num_vehicles, vehicles, zones);
+        printf("swapped!\n");
+        memset(requests, -1, sizeof(requests));
 
+        // Assign a appropriate vehicle to a request. 
+        RequestNode* req;
+        for (int i = 0; i < data->num_requests; i++) {
+            req = getItem(head, i);
+            char *save;
+            char* car;
+            car = strtok_r(req->data.vehicles,",",&save);
+            int k = 0;
+            memset(availvehic, -1, sizeof(availvehic)); 
+            
+            // vehicles die bij request moeten horen parsen
+            while(car != NULL){
+                sscanf(car,"%*3s%d",&availvehic[k]);
+                car = strtok_r(NULL,",",&save);
+                k++;
+            }
 
-    solution(data->num_vehicles, data->num_requests, vehicles, requests, unassigned, totalCost);
+            //staat er 1 van de auto's in die zone in de zones struct
+            requests[i] = assign(head, req, req->data.zone_id, zones, data->num_vehicles, availvehic, requests[i], i, requests);
+
+            // kijken of we auto's van aanliggende zones kunnen toewijzen
+            if(requests[i]==-1){
+                int n = 0;
+                while(zones[req->data.zone_id].adj_zones[n] != -1){
+                    int adj_zone = zones[req->data.zone_id].adj_zones[n];
+                    n++;
+                    // printf("adj_zone: %d\n",adj_zone);
+                    requests[i] = assign(head,req,adj_zone,zones,data->num_vehicles,availvehic,requests[i],i,requests);   
+                    if(requests[i] != -1){
+                        totalCost += req->data.penalty2;
+                        break;
+                    }
+                }
+            }
+            if(requests[i]==-1){
+                totalCost += req->data.penalty1;
+            }
+            //printf("req%d: car%d\n",i,requests[i]);
+            
+        }
+
+        printf("Totalcost: %d\n",totalCost);
+        
+        if (totalCost < bestCost) {
+            bestCost = totalCost;
+            solution(data->num_vehicles, data->num_requests, vehicles, requests, totalCost);
+        }
+        totalCost = 0;
+        runs++;
+    }
+
+    printf("bestCost %d\n", bestCost);
 
     return 0;
 }
