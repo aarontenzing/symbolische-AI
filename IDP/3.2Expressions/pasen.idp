@@ -1,0 +1,18 @@
+vocabulary V {
+    type Dag := { Maandag, Dinsdag, Woensdag, Donderdag, Vrijdag, Zaterdag, Zondag }
+    weekend : (Dag) -> Bool
+    pasen: () -> Dag
+}
+
+structure S : V {
+    weekend := { Zaterdag, Zondag }.
+}
+
+theory T : V {
+    weekend(pasen()).
+    pasen() ~= Zondag.
+}
+
+procedure main() {
+    pretty_print(model_expand(T, S))
+}

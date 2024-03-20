@@ -1,0 +1,29 @@
+vocabulary V {
+    type Mens := {Anne, Jef, Jos, Maria, Eline}
+    type Gender := {men, women,  x}
+    type Age := {1..100}
+    type FootSize := {30..50}
+    geslacht: Mens -> Gender
+    frans: Mens -> Bool
+    obees: Mens -> Bool
+    leeftijd: Mens -> Age
+    schoenmaat: Mens -> FootSize
+    roodhaar: Mens -> Bool
+    getrouwd: Mens * Mens -> Bool
+}
+
+structure S : V {
+    //geslacht  := {(Anne,women), (Maria->women), (Eline-> x), (Jef-> men), (Jos->men)}.
+    frans := {(Maria)}.
+    obees := {(Jos), (Maria)}.
+    roodhaar := {Jos}.  
+    getrouwd := {(Anne, Eline)}.
+}
+
+theory T : V {
+    
+}
+
+procedure main() {
+    pretty_print(model_expand(T, S))
+}
