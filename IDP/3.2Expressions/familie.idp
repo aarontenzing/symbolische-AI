@@ -1,8 +1,8 @@
 vocabulary V {
-    type Mens := {Anne, Jef, Jos, Maria, Eline}
-    type Gender := {men, women,  x}
-    type Age := {1..100}
-    type FootSize := {30..50}
+    type Mens := { Anne, Jef, Jos, Maria, Eline }
+    type Gender := { men, women,  x }
+    type Age := { 18..100 }
+    type FootSize := { 30..50 }
     geslacht: Mens -> Gender
     frans: Mens -> Bool
     obees: Mens -> Bool
@@ -13,15 +13,16 @@ vocabulary V {
 }
 
 structure S : V {
-    //geslacht  := {(Anne,women), (Maria->women), (Eline-> x), (Jef-> men), (Jos->men)}.
-    frans := {(Maria)}.
-    obees := {(Jos), (Maria)}.
+    geslacht  := { Anne-> women,  Jef-> men, Jos-> men, Maria-> women, Eline-> x}.
+    frans := {Maria}.
+    obees := {Jos, Maria}.
     roodhaar := {Jos}.  
     getrouwd := {(Anne, Eline)}.
 }
 
 theory T : V {
-    
+    geslacht(Anne) = women => schoenmaat(Anne) < 38.
+    geslacht(Maria) = women => schoenmaat(Maria) < 38.
 }
 
 procedure main() {
