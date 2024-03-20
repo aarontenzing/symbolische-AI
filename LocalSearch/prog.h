@@ -2,6 +2,9 @@
 #define MAX 100
 #define ID_LENGTH 20
 
+char* input_filepath;
+char* output_filepath = "solution.csv";
+
 typedef struct Request {
     int id;
     int zone_id;

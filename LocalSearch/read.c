@@ -87,7 +87,7 @@ void printRequest(RequestNode *head) {
 void readInfo(Info *data) {
 
     // FILE *file = fopen("360_5_71_25.csv", "r");
-    FILE *file = fopen("voorbeeld_input.csv", "r");
+    FILE *file = fopen(input_filepath, "r");
     fscanf(file, "+Requests: %d", &data->num_requests);
 
     char line[LINE_LENGTH]; 
@@ -121,7 +121,7 @@ void readInfo(Info *data) {
 RequestNode* readInput(Zone *zones) {
 
     // FILE *file = fopen("360_5_71_25.csv", "r");
-    FILE *file = fopen("voorbeeld_input.csv", "r");
+    FILE *file = fopen(input_filepath, "r");
 
     if (file == NULL) {
         printf("Error: file not found\n");

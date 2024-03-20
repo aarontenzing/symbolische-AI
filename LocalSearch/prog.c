@@ -4,9 +4,8 @@
 #include <time.h>
 #include "read.c" 
 
-
 void solution(int num_vehicles, int num_requests, int vehicles[num_vehicles], int requests[num_requests], int totalCost) {
-    FILE *file = fopen("voorbeeld_output.csv", "w");
+    FILE *file = fopen(output_filepath, "w");
     
     // Unassigned requests
     int unassigned[num_requests];
@@ -129,9 +128,27 @@ void swap_car(int num_vehicles, int vehicles[num_vehicles], Zone* zones) {
 
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+
+    // <input_file> <solution_file> <time_limit> <random_seed> <num_threads>
+    double time_limit;
+    unsigned int seed = 6969;
+    if (argc == 5) {
+        input_filepath = argv[1];
+        output_filepath = argv[2];
+        time_limit = atoi(argv[3]); 
+        seed = atoi(argv[4]);
+    }
+    else {
+        input_filepath = "voorbeeld_input.csv";
+        output_filepath = "solution.csv";
+        time_limit = 5;
+    }
+
     int totalCost = 0;
     int bestCost = 0;
+    srand(seed);
+
     Info *data = createInformation();
     readInfo(data);
 
@@ -166,7 +183,7 @@ int main() {
     int rand_zone;
     for (int i = 0; i < data->num_vehicles; i++) {
         rand_zone = randomNumber(data->num_zones);
-        printf("random %d\n", rand_zone);
+        //printf("random %d\n", rand_zone);
         vehicles[i] = rand_zone; // assign zone to vehicle
 
         //assign vehicle to zone
@@ -225,10 +242,11 @@ int main() {
     bestCost = totalCost;
     solution(data->num_vehicles, data->num_requests, vehicles, requests, totalCost);
     totalCost = 0;
-    int runs = 0;
-    while (runs < 100000) {
+    time_t start_time = time(NULL);
+    printf("time limit: %d\n", time_limit);
+
+    while (difftime(time(NULL), start_time) < time_limit) {
         swap_car(data->num_vehicles, vehicles, zones);
-        printf("swapped!\n");
         memset(requests, -1, sizeof(requests));
 
         // Assign a appropriate vehicle to a request. 
@@ -279,7 +297,6 @@ int main() {
             solution(data->num_vehicles, data->num_requests, vehicles, requests, totalCost);
         }
         totalCost = 0;
-        runs++;
     }
 
     printf("bestCost %d\n", bestCost);
