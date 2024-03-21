@@ -21,8 +21,9 @@ structure S : V {
 }
 
 theory T : V {
-    geslacht(Anne) = women => schoenmaat(Anne) < 38.
-    geslacht(Maria) = women => schoenmaat(Maria) < 38.
+    //geslacht(Anne) = women => schoenmaat(Anne) < 38.
+    //geslacht(Maria) = women => schoenmaat(Maria) < 38.
+    !y geslacht(y) = women => schoenmaat(y) < 38.
 }
 
 procedure main() {
