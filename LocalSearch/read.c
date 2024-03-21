@@ -75,9 +75,9 @@ RequestNode* appendRequest(RequestNode *head, RequestNode *newNode) {
 void printRequest(RequestNode *head) {
     RequestNode *current = head;
     while (current != NULL) {
-        printf("%d %d %d %d %d %s %d %d\n", 
+        printf("%d %d %d %d %d %d %d %d\n", 
             current->data.id, current->data.zone_id, current->data.day, 
-            current->data.start_time, current->data.duration, current->data.vehicles, 
+            current->data.start_time, current->data.duration, current->data.vehicles[0], 
             current->data.penalty1, current->data.penalty2);
         current = current->next;
     }
@@ -131,6 +131,7 @@ RequestNode* readInput(Zone *zones) {
     // Read the number of requests on the first line
     char line[LINE_LENGTH]; 
     char adj_zones[MAX];
+    char vehicles[MAX];
     fgets(line, LINE_LENGTH, file);
 
     // Read all the requests
@@ -144,7 +145,21 @@ RequestNode* readInput(Zone *zones) {
         }
         sscanf(line, "req%d;z%d;%d;%d;%d;%[^;];%d;%d", 
             &request.id, &request.zone_id, &request.day, &request.start_time, 
-            &request.duration, request.vehicles, &request.penalty1, &request.penalty2);
+            &request.duration, vehicles, &request.penalty1, &request.penalty2);
+
+        char *save;
+        char* car;
+        car = strtok_r(vehicles,",",&save);
+        int k = 0;
+        memset(request.vehicles, -1, sizeof(request.vehicles)); 
+        
+        // vehicles die bij request moeten horen parsen
+        while(car != NULL){
+            sscanf(car,"%*3s%d",&request.vehicles[k]);
+            car = strtok_r(NULL,",",&save);
+            k++;
+        }
+
 
         RequestNode* newRequest = createRequest(request);
         head = appendRequest(head, newRequest);

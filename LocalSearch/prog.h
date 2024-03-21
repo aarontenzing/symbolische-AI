@@ -11,7 +11,7 @@ typedef struct Request {
     int day;
     int start_time;
     int duration;
-    char vehicles[MAX];
+    int vehicles[MAX];
     int penalty1;
     int penalty2;
 } Request;
