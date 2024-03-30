@@ -136,7 +136,10 @@ void* localsearch(void *args){
     memset(vehicles, -1, sizeof(vehicles));
     memset(requests, -1, sizeof(requests));
 
-    srand(time(NULL));
+    // srand(time(NULL));
+    unsigned long tid;
+    tid = pthread_self();
+    srand((unsigned int)(time(NULL) + tid));
     int rand_zone;
     for (int i = 0; i < data->num_vehicles; i++) {
         rand_zone = randomNumber(data->num_zones);
