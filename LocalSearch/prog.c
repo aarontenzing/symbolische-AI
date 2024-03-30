@@ -220,7 +220,6 @@ void* localsearch(void *args){
                 while(zones[req->data.zone_id].adj_zones[n] != -1){
                     int adj_zone = zones[req->data.zone_id].adj_zones[n];
                     n++;
-                    // printf("adj_zone: %d\n",adj_zone);
                     requests[i] = assign(head,req,adj_zone,zones,data->num_vehicles,requests[i],i,requests);   
                     if(requests[i] != -1){
                         totalCost += req->data.penalty2;
@@ -265,7 +264,6 @@ void* localsearch(void *args){
 int main(int argc, char *argv[]) {
 
     // <input_file> <solution_file> <time_limit> <random_seed> <num_threads>
-    //char* input_filepath,solution_file;
     double time_limit=5;
     unsigned int seed = 6969;
     int bestTotalCost,num_threads=2;
@@ -326,15 +324,12 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // for (int i = 0; i < data->num_requests; i++) {
-    //     printf("req%d : %d \n",i,thread_args[idx].requests[i]);
-        
-    // }
-
     solution(data->num_vehicles,data->num_requests, thread_args[idx].vehicles, thread_args[idx].requests, bestTotalCost);
 
-    // solution(data->num_vehicles,data->num_requests, thread_args.vehicles, thread_args.requests, thread_args.bestCost);
-
+    for(int i=0;i<num_threads;i++){
+        free(thread_args[i].vehicles);
+        free(thread_args[i].requests); 
+    }
 
     return 0;
 }
