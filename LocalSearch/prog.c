@@ -70,7 +70,7 @@ int assign(RequestNode* head,RequestNode* req,int id,Zone* zones,int num_vehicle
                 for(int k = 0; k < num_requests; k++){
                     
                     if(requests[k] == currVehicle){
-
+                        // print("requests: %d\n",requests[k]);
                         oldreq = getItem(head,k);
                         if(oldreq->data.day == req->data.day && oldreq->data.start_time + oldreq->data.duration > req->data.start_time){
                             return request;
@@ -113,7 +113,8 @@ void swap_car(int num_vehicles, int vehicles[num_vehicles], Zone* zones) {
     zones[zone1].voertuigen[i] = car1;
 
     i = 0;
-     while (zones[zone2].voertuigen[i] != car1) {
+    //printf("voertuig: %d , car1: %d\n",zones[zone2].voertuigen[i],car1);
+    while (zones[zone2].voertuigen[i] != car1) {
         i++;
     }
     zones[zone2].voertuigen[i] = car2;
@@ -131,8 +132,8 @@ void* localsearch(void *args){
     double time_limit = thread_args->time_limit;
     int vehicles[data->num_vehicles];
     int requests[data->num_requests];
-    // memset(vehicles, 0, sizeof(vehicles));
-    // memset(requests, -1, sizeof(requests));
+    memset(vehicles, -1, sizeof(vehicles));
+    memset(requests, -1, sizeof(requests));
 
     srand(time(NULL));
     int rand_zone;
@@ -160,6 +161,7 @@ void* localsearch(void *args){
         // kijken of we auto's van aanliggende zones kunnen toewijzen
         if(thread_args->requests[i]==-1){
             int n = 0;
+            // printf("adj zone: %d\n",zones[req->data.zone_id].adj_zones[n]);
             while(zones[req->data.zone_id].adj_zones[n] != -1){
                 int adj_zone = zones[req->data.zone_id].adj_zones[n];
                 n++;
@@ -184,14 +186,14 @@ void* localsearch(void *args){
     // LocalSearch
     // vehicles, requests & totalCost -> when best solution found write to file
     bestCost = totalCost;
-    //solution(data->num_vehicles, data->num_requests, vehicles, requests, totalCost);
+    solution(data->num_vehicles, data->num_requests, thread_args->vehicles, thread_args->requests, totalCost);
     totalCost = 0;
     time_t start_time = time(NULL);
     printf("time limit: %f\n", time_limit);
 
     while (difftime(time(NULL), start_time) < time_limit) {
         swap_car(data->num_vehicles, thread_args->vehicles, zones);
-        memset(thread_args->requests, -1, sizeof(thread_args->requests));
+        memset(thread_args->requests, -1, data->num_requests * sizeof(int));
 
         // Assign a appropriate vehicle to a request. 
         RequestNode* req;
@@ -226,7 +228,7 @@ void* localsearch(void *args){
         
         if (totalCost < bestCost) {
             bestCost = totalCost;
-            //solution(data->num_vehicles, data->num_requests, vehicles, requests, totalCost);
+            solution(data->num_vehicles, data->num_requests, thread_args->vehicles, thread_args->requests, totalCost);
         }
         totalCost = 0;
     }
@@ -261,7 +263,6 @@ int main(int argc, char *argv[]) {
         output_filepath = "solution.csv";
     }
 
-    pthread_t *tid = malloc( num_threads * sizeof(pthread_t) );
     srand(seed);
     Info *data = createInformation();
     readInfo(data);
@@ -277,46 +278,31 @@ int main(int argc, char *argv[]) {
     Zone* zones = createZones(data->num_zones); 
     RequestNode *head = readInput(zones);
     pthread_t *threads = malloc(num_threads * sizeof *threads);
-    ThreadArgs thread_args[num_threads];
+    ThreadArgs thread_args;
+    thread_args.data = data;
+    thread_args.zones = zones;
+    thread_args.head = head;
+    thread_args.vehicles = malloc(data->num_vehicles * sizeof(int));
+    thread_args.requests = malloc(data->num_requests * sizeof(int));
+    memset(thread_args.vehicles, -1, data->num_vehicles * sizeof(int));
+    memset(thread_args.requests, -1, data->num_requests * sizeof(int));
+    thread_args.time_limit=time_limit;
+    
     for(int i=0;i<num_threads;i++){
-        thread_args[i].data = data;
-        thread_args[i].zones = zones;
-        thread_args[i].head = head;
-        thread_args[i].vehicles = malloc(data->num_vehicles * sizeof(int));
-        thread_args[i].requests = malloc(data->num_requests * sizeof(int));
-        memset(thread_args[i].vehicles, -1, data->num_vehicles * sizeof(int));
-        memset(thread_args[i].requests, -1, data->num_requests * sizeof(int));
-        thread_args[i].time_limit=time_limit;
-        // for(int j=0;j<data->num_vehicles;j++){
-        //     printf("request%d: %d\n",i,thread_args[i].vehicles[j]);
-
-        // }
-        // exit(0);
-        pthread_create(&threads[i], NULL, localsearch, (void *)&thread_args[i]);
+        pthread_create(&threads[i], NULL, localsearch, (void *)&thread_args);
     }
 
     for (int i = 0; i < num_threads; i++) {
         pthread_join(threads[i], NULL);
     }
     free(threads);
-    
 
-    bestTotalCost = thread_args[0].bestCost;
-    int idx=0;
-    for (int i = 1; i < num_threads; i++) {
-        if (thread_args[i].bestCost > bestTotalCost) {
-            bestTotalCost = thread_args[i].bestCost;
-            idx=i;
-        }
-    }
-    
     // for (int i = 0; i < data->num_requests; i++) {
     //     printf("req%d : %d \n",i,thread_args[idx].requests[i]);
         
     // }
 
-    
-    solution(data->num_vehicles,data->num_requests, thread_args[idx].vehicles, thread_args[idx].requests, bestTotalCost);
+    // solution(data->num_vehicles,data->num_requests, thread_args.vehicles, thread_args.requests, thread_args.bestCost);
 
 
     return 0;
