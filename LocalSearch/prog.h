@@ -33,3 +33,14 @@ typedef struct Zone {
     int adj_zones[MAX]; 
     int voertuigen[MAX];
 } Zone;
+
+typedef struct {
+    Info* data;
+    Zone* zones;
+    RequestNode* head;
+    int* vehicles;
+    int* requests;
+    int bestCost;
+    double time_limit;
+
+} ThreadArgs;
