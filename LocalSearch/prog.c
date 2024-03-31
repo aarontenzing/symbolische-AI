@@ -93,14 +93,49 @@ void swap(int* x, int* y) {
     *y = tmp;
 }
 
+void insert(int vehicles[], Zone* zones, Info* data) {
+
+    // per zone lijst van voertuigen leegmaken (makkelijker nadien) 
+    for (int i = 0; i < data->num_zones; i++) {
+        memset(zones[i].voertuigen, -1, MAX*sizeof(int));
+    }
+
+    int randCar = randomNumber(data->num_vehicles);
+    int randZone = vehicles[randCar];
+
+    // verwijder element uit de vehicles lijst
+    for (int i = randCar; i < data->num_vehicles-1; i++) {
+        vehicles[i] = vehicles[i+1];
+    }
+
+    randCar = randomNumber(data->num_vehicles-1); // -1 want lijst is korter geworden door vorige verwijder operatie
+
+    // insert element op nieuwe index
+    for (int i = data->num_vehicles - 2; i >= randCar; i--) {
+        vehicles[i + 1] = vehicles[i];
+    }
+    vehicles[randCar] = randZone;
+
+    // Lijst van voertuigen bij elke zone bepalen
+    int j = 0;
+    for (int i = 0; i < data->num_vehicles; i++) {
+        while (zones[vehicles[i]].voertuigen[j] != -1) {
+            j++;
+        }
+        zones[vehicles[i]].voertuigen[j] = i;
+    }
+
+}
+
 void swap_car(int num_vehicles, int vehicles[num_vehicles], Zone* zones) {
     
     int car1, car2;
     do {
         car1 = randomNumber(num_vehicles);
         car2 = randomNumber(num_vehicles);
-        
+
     } while(car1 == car2 || vehicles[car1] == vehicles[car2]);
+
     // swap zones in vehicles array
     swap(vehicles + car1, vehicles + car2);
     int zone1 = vehicles[car1];
@@ -122,24 +157,18 @@ void swap_car(int num_vehicles, int vehicles[num_vehicles], Zone* zones) {
 
 }
 
-void* localsearch(void *args){
-    // Assign a random zone to a vehicle.
-    ThreadArgs *thread_args = (ThreadArgs *)args;
-    Info* data = thread_args->data;
-    Zone* zones = thread_args->zones;
-    RequestNode *head = thread_args->head;
-    int totalCost;
-    int bestCost;
-    double time_limit = thread_args->time_limit;
-    int vehicles[data->num_vehicles];
-    int requests[data->num_requests];
-    memset(vehicles, -1, sizeof(vehicles));
-    memset(requests, -1, sizeof(requests));
+void random_init_solution(Info* data, Zone* zones, int vehicles[], int init) {
 
-    // srand(time(NULL));
+    if (init == 0) {
+        for (int i = 0; i < data->num_zones; i++) {
+        // voertuigen lijst leegmaken
+        memset(zones[i].voertuigen, -1, MAX*sizeof(int));
+        }
+    }
     unsigned long tid;
     tid = pthread_self();
     srand((unsigned int)(time(NULL) + tid));
+
     int rand_zone;
     for (int i = 0; i < data->num_vehicles; i++) {
         rand_zone = randomNumber(data->num_zones);
@@ -154,7 +183,29 @@ void* localsearch(void *args){
         zones[rand_zone].voertuigen[j] = i;
     }
 
-    // Initial solution
+    for (int i = 0; i < data->num_vehicles; i++) {
+        printf("[%d]%d;", i, vehicles[i]);
+    }
+    printf("\n");
+}
+
+void* localsearch(void *args){
+    // Assign a random zone to a vehicle.
+    ThreadArgs *thread_args = (ThreadArgs *)args;
+    Info* data = thread_args->data;
+    Zone* zones = thread_args->zones;
+    RequestNode *head = thread_args->head;
+    int totalCost;
+    int bestCost;
+    double time_limit = thread_args->time_limit;
+    int vehicles[data->num_vehicles];
+    int requests[data->num_requests];
+    memset(vehicles, -1, sizeof(vehicles));
+    memset(requests, -1, sizeof(requests));
+
+    // Initial solution 
+    random_init_solution(data, zones, vehicles, 1);
+
     RequestNode* req;
     for (int i = 0; i < data->num_requests; i++) {
         req = getItem(head, i);
@@ -185,7 +236,7 @@ void* localsearch(void *args){
         //(requests[i] != -1) ? printf("req%d: car%d\n", i, requests[i]) : 0;
         
     }
-    printf("Totalcost: %d\n",totalCost);
+    printf("Initial solution Totalcost: %d\n", totalCost);
     
     // LocalSearch
     // vehicles, requests & totalCost -> when best solution found write to file
@@ -197,13 +248,22 @@ void* localsearch(void *args){
         thread_args->vehicles[a] = vehicles[a];
     }
     thread_args->bestCost = totalCost;
-    //solution(data->num_vehicles, data->num_requests, thread_args->vehicles, thread_args->requests, totalCost);
+
+    int delta = 0; // houdt bij hoe vaak je een slechtere oplossing tegenkomt
     totalCost = 0;
     time_t start_time = time(NULL);
     printf("time limit: %f\n", time_limit);
 
     while (difftime(time(NULL), start_time) < time_limit) {
-        swap_car(data->num_vehicles, vehicles, zones);
+        if (delta == 500000) { // na 500 000 moves (heuristieken) nieuwe random oplossing
+            delta = 0;
+            random_init_solution(data, zones, vehicles, 0);
+        }
+        else {
+            swap_car(data->num_vehicles, vehicles, zones);
+            // insert(vehicles, zones, data);
+        }
+        
         memset(requests, -1, data->num_requests * sizeof(int));
 
         // Assign a appropriate vehicle to a request. 
@@ -247,6 +307,9 @@ void* localsearch(void *args){
             thread_args->bestCost = totalCost;
             //solution(data->num_vehicles, data->num_requests, thread_args->vehicles, thread_args->requests, totalCost);
         }
+        else {
+            delta++;
+        }
         totalCost = 0;
     }
     printf("bestCost %d\n", bestCost);
@@ -264,15 +327,17 @@ void* localsearch(void *args){
 int main(int argc, char *argv[]) {
 
     // <input_file> <solution_file> <time_limit> <random_seed> <num_threads>
-    double time_limit=5;
+    double time_limit = 5;
     unsigned int seed = 6969;
-    int bestTotalCost,num_threads=2;
+    int bestTotalCost, num_threads = 1;
+    printf("argc %d\n", argc);
     if (argc == 6) {
         input_filepath = argv[1];
         output_filepath = argv[2];
-        time_limit = atoi(argv[3]); 
+        time_limit = atof(argv[3]); 
         seed = atoi(argv[4]);
         num_threads = atoi(argv[5]);
+        // printf("input_file= %s; solution_file= %s; time_limit= %f; seed= %d; num_threads= %d\n", input_filepath, output_filepath, time_limit, seed, num_threads);
     }
     else {
         input_filepath = "voorbeeld_input.csv";
@@ -323,7 +388,7 @@ int main(int argc, char *argv[]) {
             idx=i;
         }
     }
-
+    printf("Found bestCost: %d\n", bestTotalCost);
     solution(data->num_vehicles,data->num_requests, thread_args[idx].vehicles, thread_args[idx].requests, bestTotalCost);
 
     for(int i=0;i<num_threads;i++){
