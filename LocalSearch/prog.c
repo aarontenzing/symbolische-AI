@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include "read.c" 
 
+// Schrijft de oplossing weg naar een file
 void solution(int num_vehicles, int num_requests, int vehicles[num_vehicles], int requests[num_requests], int totalCost) {
     FILE *file = fopen(output_filepath, "w");
     
@@ -53,6 +54,7 @@ int randomNumber(int upperBound) {
     return rand() % upperBound;
 }
 
+// Methode om een voertuig toe te wijzen aan een request
 int assign(RequestNode* head,RequestNode* req,int id,Zone* zones,int num_vehicles, int request, int num_requests ,int requests[num_requests]){
     RequestNode* oldreq;
     for (int j = 0; j < num_vehicles; j++) {
@@ -108,7 +110,7 @@ void insert(int vehicles[], Zone* zones, Info* data) {
         vehicles[i] = vehicles[i+1];
     }
 
-    randCar = randomNumber(data->num_vehicles-1); // -1 want lijst is korter geworden door vorige verwijder operatie
+    randCar = randomNumber(data->num_vehicles-1);
 
     // insert element op nieuwe index
     for (int i = data->num_vehicles - 2; i >= randCar; i--) {
@@ -184,6 +186,7 @@ void swap_car(int num_vehicles, int vehicles[num_vehicles], Zone* zones) {
 
 }
 
+// Genereert initiële oplossing
 void random_init_solution(Info* data, Zone* zones, int vehicles[], int init, unsigned int seed) {
 
     if (init == 0) {
@@ -209,19 +212,15 @@ void random_init_solution(Info* data, Zone* zones, int vehicles[], int init, uns
         }
         zones[rand_zone].voertuigen[j] = i;
     }
-
-    // for (int i = 0; i < data->num_vehicles; i++) {
-    //     printf("[%d]%d;", i, vehicles[i]);
-    // }
-    // printf("\n");
 }
 
+// Controleert de array met toegewezen requests en berekent de kost van de oplossing
 int check(RequestNode* head,Zone* zones,Info* data,int requests[]){
     int totalCost=0;
     RequestNode* req;
     for (int i = 0; i < data->num_requests; i++) {
         req = getItem(head, i);
-        //staat er 1 van de auto's in die zone in de zones struct
+        // staat er 1 van de auto's in die zone in de zones struct?
         requests[i] = assign(head, req, req->data.zone_id, zones, data->num_vehicles, requests[i], i, requests);
         // kijken of we auto's van aanliggende zones kunnen toewijzen
         if(requests[i]==-1){
@@ -249,6 +248,7 @@ int check(RequestNode* head,Zone* zones,Info* data,int requests[]){
     return totalCost;
 }
 
+// Slaat de gegevens op in de structure
 void save(ThreadArgs *thread_args, int num_requests, int requests[], int num_vehicles, int vehicles[], int totalCost){
     for(int a = 0;a<num_requests;a++){
     thread_args->requests[a] = requests[a];
@@ -259,6 +259,7 @@ void save(ThreadArgs *thread_args, int num_requests, int requests[], int num_veh
     thread_args->bestCost = totalCost;
 }
 
+// Metaheuristiek
 void* demon(void *args){
     ThreadArgs *thread_args = (ThreadArgs *)args;
     Info* data = thread_args->data;
@@ -301,8 +302,8 @@ void* demon(void *args){
     }    
 }
 
+//Heuristiek
 void* localsearch(void *args){
-    // Assign a random zone to a vehicle.
     ThreadArgs *thread_args = (ThreadArgs *)args;
     Info* data = thread_args->data;
     Zone* zones = thread_args->zones;
@@ -317,11 +318,6 @@ void* localsearch(void *args){
     // Initial solution 
     random_init_solution(data, zones, vehicles, 1,seed);
     totalCost = check(head,zones,data,requests);
-
-    // for(int i=0;i<data->num_requests;i++){
-    //     printf("req%d: car%d\n", i, requests[i]); 
-    // }
-    //(requests[i] != -1) ? printf("req%d: car%d\n", i, requests[i]) : 0;
     printf("Initial solution Totalcost: %d\n", totalCost);
     
     // vehicles, requests & totalCost -> when best solution found write to file
@@ -410,7 +406,7 @@ int main(int argc, char *argv[]) {
         memset(thread_args[i].vehicles, -1, data->num_vehicles * sizeof(int));
         memset(thread_args[i].requests, -1, data->num_requests * sizeof(int));
         pthread_create(&threads[i], NULL, localsearch, (void *)&thread_args[i]);
-        // pthread_create(&threads[i], NULL, demon, (void *)&thread_args[i]);
+        //pthread_create(&threads[i], NULL, demon, (void *)&thread_args[i]);
     }
 
     for (int i = 0; i < num_threads; i++) {
