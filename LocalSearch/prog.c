@@ -127,6 +127,33 @@ void insert(int vehicles[], Zone* zones, Info* data) {
 
 }
 
+void inverse(int num_vehicles, int vehicles[num_vehicles], Zone* zones){
+    int el1, el2;
+    do {
+        el1 = randomNumber(num_vehicles);
+        el2 = randomNumber(num_vehicles);
+
+    } while(el1 == el2 || vehicles[el1] == vehicles[el2] || el1+1 == el2 || el1 > el2);
+    for(int i = el1+1; i<el2-1;i++){
+        swap(vehicles+i,vehicles+i+1);
+        int zone1 = vehicles[i];
+        int zone2 = vehicles[i+1];
+        int j = 0;
+        while (zones[zone1].voertuigen[j] != i+1) {
+            j++;
+        }
+        zones[zone1].voertuigen[j] = i;
+
+        j = 0;
+        // printf("voertuig: %d , car1: %d\n",zones[zone2].voertuigen[j],car1);
+        while (zones[zone2].voertuigen[j] != i) {
+            j++;
+        }
+        zones[zone2].voertuigen[j] = i+1;
+
+    }
+}
+
 void swap_car(int num_vehicles, int vehicles[num_vehicles], Zone* zones) {
     
     int car1, car2;
@@ -260,8 +287,9 @@ void* localsearch(void *args){
             random_init_solution(data, zones, vehicles, 0);
         }
         else {
-            swap_car(data->num_vehicles, vehicles, zones);
+            // swap_car(data->num_vehicles, vehicles, zones);
             // insert(vehicles, zones, data);
+            inverse(data->num_vehicles, vehicles, zones);
         }
         
         memset(requests, -1, data->num_requests * sizeof(int));
