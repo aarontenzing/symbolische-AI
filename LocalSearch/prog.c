@@ -256,7 +256,7 @@ void* localsearch(void *args){
                 }
             }
         }
-        if(thread_args->requests[i]==-1){
+        if(requests[i]==-1){
             totalCost += req->data.penalty1;
         }
 
