@@ -42,5 +42,6 @@ typedef struct {
     int* requests;
     int bestCost;
     double time_limit;
+    unsigned int seed;
 
 } ThreadArgs;
