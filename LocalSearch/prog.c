@@ -340,9 +340,9 @@ void* localsearch(void *args){
             random_init_solution(data, zones, vehicles, 0,seed);
         }
         else {
-            // swap_car(data->num_vehicles, vehicles, zones);
+            swap_car(data->num_vehicles, vehicles, zones);
             // insert(vehicles, zones, data);
-            inverse(data->num_vehicles, vehicles, zones);
+            //inverse(data->num_vehicles, vehicles, zones);
         }
         memset(requests, -1, data->num_requests * sizeof(int));
 
